@@ -1,0 +1,31 @@
+{
+    "name": "makecode-DNS",
+    "description": "",
+    "dependencies": {
+        "device": "*",
+        "radio-broadcast": "*",
+        "Promise<somehting>": "github:killercraft-thecoder/promisesomehting#v1.3.2"
+    },
+    "files": [
+        "main.blocks",
+        "main.ts",
+        "README.md",
+        "assets.json",
+        "dns.ts",
+        "radio2.ts",
+        "shims.d.ts",
+        "multidevsettings.ts",
+        "test.ts"
+    ],
+    "testFiles": [
+        "test.ts"
+    ],
+    "targetVersions": {
+        "target": "2.0.59",
+        "targetId": "arcade"
+    },
+    "supportedTargets": [
+        "arcade"
+    ],
+    "preferredEditor": "tsprj"
+}
