@@ -15,7 +15,7 @@ for (let i = 0; i < 150; i++) {
     NetWorking.SendDataTo("10.0.0.0", str)
 }
 const end = control.micros()
-console.log(`${(150 * 223) / 1024} bytes delivered in ${end - start} micros.`)
+console.log(`${(150 * 223) / 1024} KiB delivered in ${end - start} micros.`)
 console.log(`Predicted Time for Trnamit:${((150 * 223) / 1024) / 8} Seconds.`)
 const len = end - start;
 const amount = 150 * 223;

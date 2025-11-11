@@ -54,6 +54,9 @@ namespace NetWorking {
 
         if (cmd == "ap" && findingDevices && found.indexOf(ip) == -1) {
             found.push(ip);
+            const serial = parseInt(replyTo)
+            if (packet.serial !== serial) console.warn(`⚠️ Spoof Alert: IP ${ip} claims serial ${serial}, but expected ${packet.serial}.`); return;
+            if (UseDNSCache) addMapping(ip, serial)
             lastDiscoveryTime = control.millis(); // Update discovery timestamp
             if (debug) console.log(`DEVICE FOUND: ${ip},timestamp:${lastDiscoveryTime}`)
         }
@@ -66,19 +69,19 @@ namespace NetWorking {
 
         if (cmd == "wi" && ip == myIP) {
             // Respond directly to serial of sender
-            radio2.sendString("ans:" + myIP + "|" + mySerial);
+            radio2.sendString("AS:" + myIP + "|" + mySerial);
         }
 
-        if (cmd == "ans" && ip) {
+        if (cmd == "AS" && ip) {
             if (waitingForResponse && responseHandler) {
                 let senderSerial = parseInt(replyTo);
-                if (packet.serial !== senderSerial) { console.warn(`⚠️ Spoof Alert: IP ${ip} claims serial ${senderSerial}, but expected ${packet.serial}.`); return; }
+                if (packet.serial !== senderSerial) { console.warn(`Spoof Alert: IP ${ip} claims serial ${senderSerial}, but expected ${packet.serial}.`); return; }
                 responseHandler(senderSerial);
                 waitingForResponse = false;
                 responseHandler = null;
             }
         }
-        if (cmd == "dt") {
+        if (cmd == "D") {
             if (waitForData) {
                 let data = parts[3];
                 let attempt = parts[2];
@@ -92,6 +95,7 @@ namespace NetWorking {
 
                 if (!alreadyHandled) {
                     if (debug) console.log(`RUNNING DATA RECIVE HANDLERS`)
+                    // @ts-ignore
                     waitForData.forEach((a) => a.fromIp == ip || a.fromIp == "*" || a.fromIp.endsWith("*") && ip.startsWith(a.fromIp.replace("*", "")) ? data.startsWith("file|") || data.startsWith("readfile") && !a._ ? false : a.func(data) : false)
                 }
 
@@ -102,7 +106,7 @@ namespace NetWorking {
 
 
     game.onUpdateInterval(100, function () {
-        if (findingDevices && game.runtime() - lastDiscoveryTime > 200 && foundDevices) {
+        if (game.runtime() - lastDiscoveryTime > 200 && findingDevices && foundDevices) {
             foundDevices(found);
             foundDevices = null;
             findingDevices = false;
@@ -140,7 +144,7 @@ namespace NetWorking {
         } else {
             radio.on()
             radio2.sendString("ignore") // just to make sure radio is on.
-            pause(100) // make sure it is on. takes more time than sim for saftey.
+            pause(100) // make sure it is on.
         }
     }
     /**
@@ -153,12 +157,12 @@ namespace NetWorking {
         waitForData = null;
         waitingForResponse = false;
         waitForData = [];
-        radio.off()
+        radio.off();
     }
 
     /**
  * Provides a clean way to reboot the radio subsystem, resetting communication state.
- * Intended for scenarios where a fresh connection lifecycle is desirable — such as transitioning between sessions,
+ * Intended for scenarios where a fresh connection lifecycle is desirable — such as trASitioning between sessions,
  * reinitializing after inactivity, or recovering from undefined networking behavior.
  *
  * Example:
@@ -221,8 +225,10 @@ namespace NetWorking {
     export function safeStringify(obj: any, depth = 0, maxDepth = 10): string {
         if (depth > maxDepth) throw '"[Max depth reached]"';
 
-        if (typeof obj === 'string' || typeof obj === 'number' || typeof obj === 'boolean') {
-            return JSON.stringify(obj);
+        if (typeof obj === 'string') {
+            return obj;
+        } else if (typeof obj === 'number' || typeof obj === 'boolean') {
+            return "" + obj;
         }
 
         if (obj === null) return 'null';
@@ -244,14 +250,14 @@ namespace NetWorking {
     /** 
      * Send a String of Data To a IP.
      * @param ip the IP to send the data to.
-     * @note apromxaltly 226 bytes of data can be sent before truncating will happen
+     * @note apromxaltly 227 bytes of data can be sent before truncating will happen
     */
     export function SendDataTo(ip: string, data: any) {
         sendWhoIs(ip).then(function (serial) {
-            radio2.sendString(`dt:${ip}|${mySerial}|0|${JSON.stringify(data)}`)
+            radio2.sendString(`D:${ip}|${mySerial}|0|${JSON.stringify(data)}`)
 
             for (let i = 0; i < 5; i++) {
-                radio2.sendString(`dt:${ip}|${mySerial}|1|${JSON.stringify(data)}`)
+                radio2.sendString(`D:${ip}|${mySerial}|1|${JSON.stringify(data)}`)
             }
         })
     }
@@ -303,7 +309,7 @@ namespace NetWorking {
                 for (let i = 0; i < 10; i++) {
                     if (!findingDevices) break;
                     radio2.sendString(`pr:*|${mySerial}|FIND`)
-                    pause(5)
+                    pause(10)
                 }
             })
             foundDevices = function (dev) {
