@@ -55,7 +55,7 @@ namespace NetWorking {
         if (cmd == "ap" && findingDevices && found.indexOf(ip) == -1) {
             found.push(ip);
             const serial = parseInt(replyTo)
-            if (packet.serial !== serial) console.warn(`⚠️ Spoof Alert: IP ${ip} claims serial ${serial}, but expected ${packet.serial}.`); return;
+            if (packet.serial !== serial) console.warn(`⚠Spoof Alert: IP ${ip} claims serial ${serial}, but expected ${packet.serial}.`); return;
             if (UseDNSCache) addMapping(ip, serial)
             lastDiscoveryTime = control.millis(); // Update discovery timestamp
             if (debug) console.log(`DEVICE FOUND: ${ip},timestamp:${lastDiscoveryTime}`)
@@ -63,13 +63,19 @@ namespace NetWorking {
 
         if (cmd === "pr" && ip === "*" && parts[2] === "FIND") {
             // Send back a response to the sender's serial
-            radio2.sendString(`ap:${myIP}|${mySerial}`);
+            
+            for (let i = 0; i < 5; i++) {
+                radio2.sendString(`ap:${myIP}|${mySerial}`);
+            }
             if (debug) console.log(`Sending Response`)
         }
 
         if (cmd == "wi" && ip == myIP) {
             // Respond directly to serial of sender
-            radio2.sendString("AS:" + myIP + "|" + mySerial);
+            
+            for (let i = 0; i < 5; i++) {
+                radio2.sendString("AS:" + myIP + "|" + mySerial);
+            }
         }
 
         if (cmd == "AS" && ip) {
