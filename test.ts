@@ -1,3 +1,4 @@
+/*
 NetWorking.UseDNSCache = true;
 NetWorking.init()
 pause(randint(500,1900))
@@ -22,4 +23,4 @@ const amount = 150 * 223;
 const bytespermicro = amount / len;
 console.log(`bits/millisecond:${(bytespermicro * 8) * 1000}`)
 console.log(`kb/second:${Math.roundWithPrecision((((bytespermicro) * 1000) * 1000) / 1024, 16)}`)
-
+*/

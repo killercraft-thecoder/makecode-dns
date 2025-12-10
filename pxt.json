@@ -5,7 +5,7 @@
     "dependencies": {
         "device": "*",
         "radio-broadcast": "*",
-        "Promise<somehting>": "github:killercraft-thecoder/promisesomehting#v1.4.0"
+        "Promise<somehting>": "github:killercraft-thecoder/promisesomehting#master"
     },
     "files": [
         "main.blocks",
@@ -22,7 +22,7 @@
         "test.ts"
     ],
     "targetVersions": {
-        "target": "2.0.61",
+        "target": "2.0.62",
         "targetId": "arcade"
     },
     "supportedTargets": [
