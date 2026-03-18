@@ -102,7 +102,11 @@ namespace NetWorking {
                 if (!alreadyHandled) {
                     if (debug) console.log(`RUNNING DATA RECIVE HANDLERS`)
     
-                    waitForData.forEach((a) => {
+                    waitForData.forEach((a: {
+                        func: (dat: string) => void;
+                        fromIp: string;
+                        _?: boolean;
+                    }) => {
                         const ipMatch =
                             a.fromIp === ip ||
                             a.fromIp === "*" ||
