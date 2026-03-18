@@ -5,7 +5,7 @@
     "dependencies": {
         "device": "*",
         "radio-broadcast": "*",
-        "Promise<somehting>": "github:killercraft-thecoder/promisesomehting#master"
+        "Promise<somehting>": "github:killercraft-thecoder/promisesomehting#v1.5.1"
     },
     "files": [
         "main.blocks",
