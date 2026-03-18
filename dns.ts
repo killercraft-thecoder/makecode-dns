@@ -101,8 +101,28 @@ namespace NetWorking {
 
                 if (!alreadyHandled) {
                     if (debug) console.log(`RUNNING DATA RECIVE HANDLERS`)
-                    // @ts-ignore
-                    waitForData.forEach((a) => a.fromIp == ip || a.fromIp == "*" || a.fromIp.endsWith("*") && ip.startsWith(a.fromIp.replace("*", "")) ? data.startsWith("file|") || data.startsWith("readfile") && !a._ ? false : a.func(data) : false)
+    
+                    waitForData.forEach((a) => {
+                        const ipMatch =
+                            a.fromIp === ip ||
+                            a.fromIp === "*" ||
+                            (a.fromIp.endsWith("*") &&
+                                ip.startsWith(a.fromIp.slice(0, -1)));
+
+                        if (!ipMatch) return;
+
+                        const isFileCommand =
+                            data.startsWith("file|") ||
+                            (data.startsWith("readfile") && !a._);
+
+                        if (!isFileCommand) return;
+
+                        try {
+                            a.func(data);
+                        } catch (err) {
+                            console.log("Handler error:" + err);
+                        }
+                    });
                 }
 
                 alreadyHandled = true;
@@ -307,7 +327,11 @@ namespace NetWorking {
     let foundDevices: (dev: string[]) => void = null;
     let found: string[] = []
     let lastDiscoveryTime = control.millis();
-    export function GetPeers() {
+    /**
+     * Get the Peers Nearby
+     * @returns a Promise for a list of the IP's of the peers.
+     */
+    export function GetPeers():Promise<string[]> {
         return new Promise<string[]>(function (resolve) {
             findingDevices = true;
             control.runInParallel(function () {
