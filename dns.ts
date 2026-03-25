@@ -3,6 +3,12 @@
  */
 //% weight=100 color=#0fbc11 icon=""
 namespace NetWorking {
+    interface WaitEntry {
+        func: (dat: string) => void;
+        fromIp: string;
+        _?: boolean;
+    }
+
     export class Handler<T> {
         private callback: ((value: T) => void) | null = null;
         private value: T | null = null;
@@ -36,7 +42,7 @@ namespace NetWorking {
     export let mySerial = control.deviceSerialNumber();
     let waitingForResponse = false;
     let responseHandler: (rep: SerialNumber) => void = null;
-    let waitForData: { func: (dat: string) => void, fromIp: string, _?: boolean }[] = [];
+    let waitForData: WaitEntry[] = [];
     export let debug = false;
 
     radio.setFrequencyBand(40);
@@ -101,32 +107,30 @@ namespace NetWorking {
 
                 if (!alreadyHandled) {
                     if (debug) console.log(`RUNNING DATA RECIVE HANDLERS`)
-    
-                    waitForData.forEach((a: {
-                        func: (dat: string) => void;
-                        fromIp: string;
-                        _?: boolean;
-                    }) => {
+                
+                    for (let i = 0; i < waitForData.length; i++) {
+                        const a = waitForData[i];
+
                         const ipMatch =
                             a.fromIp === ip ||
                             a.fromIp === "*" ||
                             (a.fromIp.endsWith("*") &&
                                 ip.startsWith(a.fromIp.slice(0, -1)));
 
-                        if (!ipMatch) return;
+                        if (!ipMatch) continue;
 
                         const isFileCommand =
                             data.startsWith("file|") ||
                             (data.startsWith("readfile") && !a._);
 
-                        if (!isFileCommand) return;
+                        if (!isFileCommand) continue;
 
                         try {
                             a.func(data);
                         } catch (err) {
                             console.log("Handler error:" + err);
                         }
-                    });
+                    }
                 }
 
                 alreadyHandled = true;
